@@ -1,0 +1,155 @@
+<?xml version="1.0" ?>
+<mujoco>
+    <size njmax="8000" nconmax="4000"/>
+    <worldbody>
+    
+    	<!--Layer 1 0.075 0.025 0.015-->
+        <body name="box_0_0" pos="0 0 0">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+          
+        <body name="box_0_1" pos="0 0.0255 0">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+                
+        <body name="box_0_2" pos="0 0.051 0">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+        
+        <!--Layer 2-->
+        <body name="box_1_0" pos="-0.025 0.025 0.0156">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <body name="box_1_1" pos="0.002 0.025 0.0156">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <body name="box_1_2" pos="0.029 0.025 0.0156">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <!--Layer 3-->
+        <body name="box_2_0" pos="0 0 0.0307">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+          
+        <body name="box_2_1" pos="0 0.0255 0.0307">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+                
+        <body name="box_2_2" pos="0 0.051 0.0307">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+        
+        <!--Layer 4-->
+        <body name="box_3_0" pos="-0.025 0.025 0.0455">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <body name="box_3_1" pos="0.002 0.025 0.0455">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <body name="box_3_2" pos="0.029 0.025 0.0455">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <!--Layer 5-->
+        <body name="box_4_0" pos="0 0 0.0607">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+          
+        <body name="box_4_1" pos="0 0.0255 0.0607">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+                
+        <body name="box_4_2" pos="0 0.051 0.0607">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+        
+        <!--Layer 6-->
+        <body name="box_5_0" pos="-0.025 0.025 0.0758">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <body name="box_5_1" pos="0.0003 0.025 0.0758">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <body name="box_5_2" pos="0.029 0.025 0.0758">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <!--Layer 7-->
+        <body name="box_6_0" pos="0 0 0.0909">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+          
+        <body name="box_6_1" pos="0 0.0255 0.0909">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+                
+        <body name="box_6_2" pos="0 0.051 0.0909">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+        
+        <!--Layer 8-->
+        <body name="box_7_0" pos="-0.025 0.025 0.1057">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <body name="box_7_1" pos="0.0003 0.025 0.1057">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <body name="box_7_2" pos="0.029 0.025 0.1057">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" euler="0 0 90" type="box"/>
+        </body>
+        
+        <!--Layer 9-->
+        <body name="box_8_0" pos="0 0 0.1209">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+          
+        <body name="box_8_1" pos="0 0.0255 0.1209">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+                
+        <body name="box_8_2" pos="0 0.051 0.1209">
+            <joint type='free'/>
+            <geom size="0.0375 0.0125 0.0075" type="box"/>
+        </body>
+                
+       
+        <body name="floor" pos="0 0 -0.008">
+            <geom size="1.0 1.0 0.001" rgba="0 1 0 1" type="box"/>
+        </body>
+    </worldbody>
+</mujoco>
