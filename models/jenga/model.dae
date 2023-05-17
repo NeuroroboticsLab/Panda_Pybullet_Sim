@@ -513,7 +513,7 @@
         </geometry>
     </library_geometries>
     <library_materials>
-        <material id="ID5" name="Jenga_Block_Texture.jpg">
+        <material id="ID5" name="Jenga_Block_Texture">
             <instance_effect url="#ID6" />
         </material>
         <material id="ID15" name="Color_D01">
@@ -525,13 +525,13 @@
         <material id="ID19" name="edge_color255242204255">
             <instance_effect url="#ID20" />
         </material>
-        <material id="ID26" name="Logo_Side.jpg">
+        <material id="ID26" name="Logo_Side">
             <instance_effect url="#ID27" />
         </material>
         <material id="ID46" name="edge_color213180147255">
             <instance_effect url="#ID47" />
         </material>
-        <material id="ID53" name="Exposed_Egde_Texture.jpg">
+        <material id="ID53" name="Exposed_Egde_Texture">
             <instance_effect url="#ID54" />
         </material>
     </library_materials>
@@ -655,13 +655,13 @@
     </library_effects>
     <library_images>
         <image id="ID7">
-            <init_from>texture/Jenga_Block_Texture.jpg.jpg</init_from>
+            <init_from>texture/Jenga_Block_Texture.jpg</init_from>
         </image>
         <image id="ID28">
-            <init_from>texture/Logo_Side.jpg.jpg</init_from>
+            <init_from>texture/Logo_Side.jpg</init_from>
         </image>
         <image id="ID55">
-            <init_from>texture/Exposed_Egde_Texture.jpg.jpg</init_from>
+            <init_from>texture/Exposed_Egde_Texture.jpg</init_from>
         </image>
     </library_images>
     <scene>
