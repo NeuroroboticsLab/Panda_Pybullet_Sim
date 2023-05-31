@@ -34,7 +34,7 @@ class Sim_World():
         # Load robot model
         self.robot.reset_robot(Q_INIT.RIGHT)
 
-        #self.build_jenga_tower(10)
+        self.build_jenga_tower(5)
 
     def build_jenga_tower(self, num_layers=18, pos=[0.5, 0, 0]):
         stone_path = os.path.join(self.urdf_root, "jenga/block.urdf")
@@ -58,23 +58,38 @@ class Sim_World():
 
     def get_ori_of_stone(self, block_id):
         return p.getBasePositionAndOrientation(block_id)[1]
-    
+
     def visualize_target(self, target_pos):
-        marker_id = p.loadURDF("/home/asiimov/workspace/HRL_RobotGym/hrl_gym/models/spheres/red_four.urdf", target_pos[0], target_pos[1], target_pos[2], 0.000000, 0.000000, 0.0, 1.0)
-        p.setCollisionFilterGroupMask(marker_id, 0,0,0)
+        sphere_path = os.path.join(self.urdf_root, "sphere.urdf")
+        marker_id = p.loadURDF(sphere_path,
+                               target_pos[0], target_pos[1], target_pos[2], 0.000000, 0.000000, 0.0, 1.0)
+        p.setCollisionFilterGroupMask(marker_id, 0, 0, 0)
+
+    def visualize_robot_joints(self):
+        for joint_index in range(9, 13):
+            joint_info = p.getLinkState(self.robot.robot_id, joint_index)
+            joint_pos = joint_info[0]
+            print(joint_info)
+            self.visualize_target(joint_pos)
 
     def run_env(self):
-        
+
         self.visualize_target([0.3, 0.3, 0.3])
 
-        new_pos, new_ori = self.robot.trans_stick_to_eef([0.3, 0.3, 0.3], [-0.7, np.pi, 0])
-        self.robot.move_robot(new_pos, new_ori)
+        # Drive robot in y direction for 100 steps
+        for _ in range(100):
+            self.robot.move_robot([0, 0.05, 0])
+
+        # Drive robot in x direction for 100 steps
+        for _ in range(100):
+            self.robot.move_robot([0.05, 0, 0])
+
+        new_pos, new_ori = self.robot.trans_stick_to_eef(
+            [0.3, 0.3, 0.3], [-0.7, np.pi, 0])
+        # self.robot.move_robot(new_pos, new_ori)
 
         for _ in range(20):
             p.stepSimulation()
         # Just run simulation without executing anything else
         for _ in range(1000000000):
-    
             p.stepSimulation()
-
-           

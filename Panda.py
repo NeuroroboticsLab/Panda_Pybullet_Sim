@@ -1,9 +1,11 @@
+from scipy.spatial.transform import Rotation
 import os
 import pybullet as p
 import pybullet_data
 import numpy as np
 import math
 from enum import Enum
+
 
 class Q_INIT(Enum):
     LEFT = "left"
@@ -16,7 +18,6 @@ class Q_INIT(Enum):
 GRIPPER_STEPS = 50
 MOVE_STEPS = 5
 
-from scipy.spatial.transform import Rotation
 
 def quaternion_from_rotation_matrix(R):
     rotation = Rotation.from_matrix(R)
@@ -36,17 +37,27 @@ class Panda():
         self.client = client
         self.client.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.config = config
+        self.jd = [
+            0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001,
+            0.00001, 0.00001
+        ]
 
         self.robot_num_joints = 7
-        self.robot_gripper_index = 12
+        self.robot_gripper_index = 13
+        self.robot_stick_index = 12
 
-        self.urdf_root_path = os.getcwd()+"/models/franka_panda/panda_with_stick.urdf"
+        self.urdf_root_path = os.getcwd(
+        ) + "/src/Panda_Pybullet_Sim/models/franka_panda/panda_with_stick.urdf"
+        print(self.urdf_root_path)
         self.reset_robot()
 
     def reset_robot(self, init_state=Q_INIT.LEFT):
         # Load robot into simulation
         self.robot_id = self.client.loadURDF(self.urdf_root_path, basePosition=[
                                              0, 0, 0], useFixedBase=True)
+        # for i in range(p.getNumJoints(self.robot_id)):
+        #     joint_info = p.getJointInfo(self.robot_id, i)
+        #     print(joint_info)
 
         self.client.resetBasePositionAndOrientation(self.robot_id, [-0.00000, 0.000000, 0.000000],
                                                     [0.000000, 0.000000, 0.000000, 1.000000])
@@ -62,19 +73,44 @@ class Panda():
         for i in range(50):
             p.stepSimulation()
 
-        
-
-    def move_robot(self, delta_pos, ori_in=[0, math.pi, 0]):
+    def move_tcp_delta(self, delta_pos, target_ori=[0, math.pi, 0]):
         curr_tcp_pos = np.array(p.getLinkState(
             self.robot_id, self.robot_gripper_index)[0])
-
         new_tcp_pos = curr_tcp_pos + np.array(delta_pos, dtype=np.float32)
-
-        #ori = self.client.getQuaternionFromEuler(ori_in)
+        ori = self.client.getQuaternionFromEuler(target_ori)
 
         # Get joint values for new eef position
         q_pos = self.client.calculateInverseKinematics(self.robot_id, self.robot_gripper_index,
-                                                       delta_pos, ori_in)
+                                                       new_tcp_pos, ori)
+
+        # Move set joints to target position
+        for q_idx in range(self.robot_num_joints):
+            self.client.setJointMotorControl2(self.robot_id, q_idx, self.client.POSITION_CONTROL,
+                                              targetPosition=q_pos[q_idx])
+
+        for _ in range(MOVE_STEPS):
+            p.stepSimulation()
+
+    def move_tcp(self, target_pos, target_ori=[0, math.pi, 0]):
+        ori = self.client.getQuaternionFromEuler(target_ori)
+
+        # Get joint values for new eef position
+        q_pos = self.client.calculateInverseKinematics(self.robot_id, self.robot_gripper_index,
+                                                       target_pos, ori)
+
+        # Move set joints to target position
+        for q_idx in range(self.robot_num_joints):
+            self.client.setJointMotorControl2(self.robot_id, q_idx, self.client.POSITION_CONTROL,
+                                              targetPosition=q_pos[q_idx])
+
+        for _ in range(MOVE_STEPS):
+            p.stepSimulation()
+
+    def move_stick(self, target_pos, target_ori=[0, math.pi, 0]):
+        ori = self.client.getQuaternionFromEuler(target_ori)
+        # Get joint values for new eef position
+        q_pos = self.client.calculateInverseKinematics(self.robot_id, self.robot_stick_index,
+                                                       target_pos, ori, jointDamping=self.jd)
 
         # Move set joints to target position
         for q_idx in range(self.robot_num_joints):
@@ -90,6 +126,13 @@ class Panda():
         for _ in range(GRIPPER_STEPS):
             p.stepSimulation()
 
+    def move_joint(self, target):
+        self.client.setJointMotorControlArray(self.robot_id, range(7), self.client.POSITION_CONTROL,
+                                              targetPositions=target)
+
+        for _ in range(MOVE_STEPS):
+            p.stepSimulation()
+
     def move_gripper(self, dist):
         tcp_finger_pos = self.get_joint_angles([9, 10])
 
@@ -103,41 +146,12 @@ class Panda():
 
     def get_eef_pos(self):
         return np.array(p.getLinkState(self.robot_id, self.robot_gripper_index)[0])
-    
+
     def get_stick_pos(self):
-        stick_pos = np.array(p.getLinkState(self.robot_id, 11)[0])
-        stick_pos[0] = stick_pos[0]+0.075/2+0.021
-        stick_pos[1] = stick_pos[1]+0.01
-        stick_pos[2] = stick_pos[2]+0.011
+        stick_pos = np.array(p.getLinkState(
+            self.robot_id, self.robot_stick_index)[0])
         return stick_pos
-    
-    def trans_stick_to_eef(self, target_pos, target_ori=[0, -np.pi, 0]):
-        
-        # Transform target to vector
-        target_pos = np.append(np.array(target_pos),1)
 
-        # Create 4x4 transformation matrix from translation and rotation
-        trans_mat = np.eye(4)
-        # Translation
-        trans_mat[:3, 3] = self.get_stick_pos()-self.get_eef_pos()
-        # Rotation
-        trans_mat[:3, :3] = np.identity(3)
-
-        # Transform stick position to eef position
-        eef_pos = np.dot(trans_mat, target_pos)[:3]
-        
-        # Convert the quaternion to a 3x3 rotation matrix
-        target_rot_mat = np.array(p.getMatrixFromQuaternion(p.getQuaternionFromEuler(target_ori))).reshape(3, 3)
-        
-        # Perform matrix multiplication
-        new_rotation = np.dot(trans_mat[:3, :3], target_rot_mat)
-
-        # Convert the new rotation matrix back to a quaternion
-        rotation = Rotation.from_matrix(new_rotation)
-        new_quaternion = rotation.as_quat()
-        
-        return eef_pos, new_quaternion
-        
     def get_joint_angles(self, joint_ids=[0, 1, 2, 3, 4, 5, 6]):
         curr_joint_states = p.getJointStates(self.robot_id, joint_ids)
         curr_joint_angles = []
@@ -174,5 +188,3 @@ class Panda():
             return [-0.7, -0.7, 0, -2.5, 0, 1.57, 0, 0, 0, 0, 0, 0]
 
         return [0, 0.413184, -0.011401, -1.589317, 0.005379, 1.137684, -0.006539, 0, 0, 0, 0, 0]
-
-   
