@@ -14,3 +14,4 @@ if __name__ == '__main__':
 
     # go to the run function and write there everything the robot should do
     env.run_env()
+
