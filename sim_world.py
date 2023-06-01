@@ -63,18 +63,11 @@ class Sim_World():
         marker_id = p.loadURDF("/home/asiimov/workspace/HRL_RobotGym/hrl_gym/models/spheres/red_four.urdf", target_pos[0], target_pos[1], target_pos[2], 0.000000, 0.000000, 0.0, 1.0)
         p.setCollisionFilterGroupMask(marker_id, 0,0,0)
 
-    def run_env(self):
-        
-        self.visualize_target([0.3, 0.3, 0.3])
-
-        new_pos, new_ori = self.robot.trans_stick_to_eef([0.3, 0.3, 0.3], [-0.7, np.pi, 0])
-        self.robot.move_robot(new_pos, new_ori)
-
-        for _ in range(20):
-            p.stepSimulation()
-        # Just run simulation without executing anything else
-        for _ in range(1000000000):
-    
-            p.stepSimulation()
+    def visualize_robot_joints(self):
+        for joint_index in range(9, 14):
+            joint_info = p.getLinkState(self.robot.robot_id, joint_index)
+            joint_pos = joint_info[0]
+            print(joint_info)
+            self.visualize_target(joint_pos)
 
            
