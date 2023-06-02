@@ -10,13 +10,14 @@ from Panda import Q_INIT
 
 class Sim_World():
 
-    def __init__(self, config, client):
+    def __init__(self, config, client, num_layers=18):
         # Environment parameters
         self.config = config
         self.urdf_root = os.path.dirname(os.path.abspath(
             inspect.getfile(inspect.currentframe()))) + "/models"
         self.robot = Panda(client, config=config, time_step=1. / 240.)
         self.jenga_stone_ids = []
+        self.num_layers = num_layers
 
     def reset_env(self):
 
@@ -34,9 +35,9 @@ class Sim_World():
         # Load robot model
         self.robot.reset_robot(Q_INIT.RIGHT)
 
-        #self.build_jenga_tower(10)
+        self.build_jenga_tower(self.num_layers)
 
-    def build_jenga_tower(self, num_layers=18, pos=[0.5, 0, 0]):
+    def build_jenga_tower(self, num_layers, pos=[0.5, 0, 0]):
         stone_path = os.path.join(self.urdf_root, "jenga/block.urdf")
 
         ori = p.getQuaternionFromEuler([0, 0, 1.57])
@@ -60,8 +61,9 @@ class Sim_World():
         return p.getBasePositionAndOrientation(block_id)[1]
     
     def visualize_target(self, target_pos):
-        marker_id = p.loadURDF("/home/asiimov/workspace/HRL_RobotGym/hrl_gym/models/spheres/red_four.urdf", target_pos[0], target_pos[1], target_pos[2], 0.000000, 0.000000, 0.0, 1.0)
-        p.setCollisionFilterGroupMask(marker_id, 0,0,0)
+        sphere_path = os.path.join(self.urdf_root, "sphere.urdf")
+        marker_id = p.loadURDF(sphere_path, target_pos[0], target_pos[1], target_pos[2], 0.0, 0.0, 0.0, 1.0)
+        p.setCollisionFilterGroupMask(marker_id, 0, 0, 0)
 
     def visualize_robot_joints(self):
         for joint_index in range(9, 14):
