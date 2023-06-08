@@ -23,7 +23,7 @@ class ROBOT_TYPE(Enum):
 
 
 GRIPPER_STEPS = 50
-MOVE_STEPS = 10
+MOVE_STEPS = 30
 MOVE_STEPS_DELTA = 10
 
 from scipy.spatial.transform import Rotation

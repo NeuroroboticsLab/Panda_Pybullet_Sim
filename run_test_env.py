@@ -18,10 +18,11 @@ if __name__ == '__main__':
     env.reset_env()
 
     stone_id = 12
-    env.visualize_target(env.get_pos_of_stone(stone_id))
+    
     for _ in range(20):
         p.stepSimulation()
 
+    env.visualize_target(env.get_pos_of_stone(stone_id))
     pos_of_stone = env.get_pos_of_stone(stone_id)
     get_ori_of_stone = env.get_ori_of_stone(stone_id)
     env.robot.move_stick(pos_of_stone)
