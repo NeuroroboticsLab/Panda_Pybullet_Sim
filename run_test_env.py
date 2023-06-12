@@ -22,9 +22,9 @@ if __name__ == '__main__':
     for _ in range(20):
         p.stepSimulation()
 
+    # visualize target (target is an collision object)
     env.visualize_target(env.get_pos_of_stone(stone_id))
     pos_of_stone = env.get_pos_of_stone(stone_id)
-    get_ori_of_stone = env.get_ori_of_stone(stone_id)
     env.robot.move_stick(pos_of_stone)
 
     print("get_pos_of_stone", pos_of_stone)
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     for _ in range(50):
         p.stepSimulation()
-    env.visualize_robot_joints()
+    env.visualize_robot_joints() # (targets are collision objects)
     # Just run simulation without executing anything else
     for _ in range(1000000000):
         p.stepSimulation()

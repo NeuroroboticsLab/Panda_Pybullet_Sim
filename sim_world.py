@@ -1,6 +1,5 @@
 import os
 import inspect
-import time
 import numpy as np
 import pybullet as p
 
