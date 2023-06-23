@@ -1,3 +1,4 @@
+from scipy.spatial.transform import Rotation
 import os
 import pybullet as p
 import pybullet_data
@@ -5,12 +6,14 @@ import numpy as np
 import math
 from enum import Enum
 
+
 class Q_INIT(Enum):
     LEFT = "left"
     RIGHT = "right"
     TOP = "top"
     FRONT = "front"
     BACK = "back"
+
 
 class ROBOT_TYPE(Enum):
     PANDA = "panda"
@@ -26,7 +29,6 @@ GRIPPER_STEPS = 50
 MOVE_STEPS = 30
 MOVE_STEPS_DELTA = 10
 
-from scipy.spatial.transform import Rotation
 
 def quaternion_from_rotation_matrix(R):
     rotation = Rotation.from_matrix(R)
@@ -68,17 +70,20 @@ class Panda():
 
         # choose and initialize joint states
         for q_index in range(len(q_init_pos)):
-            self.client.resetJointState(self.robot_id, q_index, q_init_pos[q_index])
+            self.client.resetJointState(
+                self.robot_id, q_index, q_init_pos[q_index])
 
         # print joint info
-        # for i in range(self.client.getNumJoints(self.robot_id)):
-        #     print(self.client.getJointInfo(self.robot_id, i))
+        for i in range(self.client.getNumJoints(self.robot_id)):
+            print(self.client.getJointInfo(self.robot_id, i))
 
         for i in range(50):
             p.stepSimulation()
 
-        
-    def move_tcp_delta(self, delta_pos, delta_ori=[0, 0, 0]):
+    def move_tcp_delta(self, delta_pos, delta_ori=[0, 0, 0], degrees=False):
+        if degrees is True:
+            target_ori = np.deg2rad(target_ori)
+
         new_tcp_pos = self.get_eef_pos() + np.array(delta_pos, dtype=np.float32)
         new_tcp_ori = self.get_eef_ori() + np.array(delta_ori, dtype=np.float32)
         quat = self.client.getQuaternionFromEuler(new_tcp_ori)
@@ -95,17 +100,27 @@ class Panda():
         for _ in range(MOVE_STEPS_DELTA):
             p.stepSimulation()
 
-    def move_tcp(self, target_pos, target_ori=[0, math.pi, 0]):
+    def move_tcp(self, target_pos, target_ori=[0, math.pi, 0], degrees=False):
+        if degrees is True:
+            target_ori = np.deg2rad(target_ori)
+
+        if degrees is True:
+            target_ori = np.deg2rad(target_ori)
         quat = self.client.getQuaternionFromEuler(target_ori)
 
-        for _ in range(MOVE_STEPS):      
-            q_pos = self.client.calculateInverseKinematics(self.robot_id, self.robot_gripper_index, target_pos, quat, jointDamping=self.jd)
+        for _ in range(MOVE_STEPS):
+            q_pos = self.client.calculateInverseKinematics(
+                self.robot_id, self.robot_gripper_index, target_pos, quat, jointDamping=self.jd)
             for q_idx in range(self.robot_num_joints):
-                self.client.setJointMotorControl2(self.robot_id, q_idx, self.client.POSITION_CONTROL, targetPosition=q_pos[q_idx])
+                self.client.setJointMotorControl2(
+                    self.robot_id, q_idx, self.client.POSITION_CONTROL, targetPosition=q_pos[q_idx])
             for _ in range(MOVE_STEPS_DELTA):
                 p.stepSimulation()
 
-    def move_stick_delta(self, delta_pos, delta_ori=[0, 0, 0]):
+    def move_stick_delta(self, delta_pos, delta_ori=[0, 0, 0], degrees=False):
+        if degrees is True:
+            target_ori = np.deg2rad(target_ori)
+
         new_tcp_pos = self.get_stick_pos() + np.array(delta_pos, dtype=np.float32)
         new_tcp_ori = self.get_stick_ori() + np.array(delta_ori, dtype=np.float32)
         quat = self.client.getQuaternionFromEuler(new_tcp_ori)
@@ -122,16 +137,17 @@ class Panda():
         for _ in range(MOVE_STEPS_DELTA):
             p.stepSimulation()
 
-    def move_stick(self, target_pos, target_ori=[0, math.pi, 0]):
+    def move_stick(self, target_pos, target_ori=[0, math.pi, 0], degrees=False):
         quat = self.client.getQuaternionFromEuler(target_ori)
 
-        for _ in range(MOVE_STEPS):      
-            q_pos = self.client.calculateInverseKinematics(self.robot_id, self.robot_stick_index, target_pos, quat, jointDamping=self.jd)
+        for _ in range(MOVE_STEPS):
+            q_pos = self.client.calculateInverseKinematics(
+                self.robot_id, self.robot_stick_index, target_pos, quat, jointDamping=self.jd)
             for q_idx in range(self.robot_num_joints):
-                self.client.setJointMotorControl2(self.robot_id, q_idx, self.client.POSITION_CONTROL, targetPosition=q_pos[q_idx])
+                self.client.setJointMotorControl2(
+                    self.robot_id, q_idx, self.client.POSITION_CONTROL, targetPosition=q_pos[q_idx])
             for _ in range(MOVE_STEPS_DELTA):
                 p.stepSimulation()
-
 
     def open_gripper(self):
         self.client.setJointMotorControlArray(self.robot_id, [9, 10], self.client.POSITION_CONTROL,
@@ -152,18 +168,20 @@ class Panda():
 
     def get_eef_pos(self):
         return np.array(p.getLinkState(self.robot_id, self.robot_gripper_index)[0])
-    
+
     def get_eef_ori(self):
-        quat = np.array(p.getLinkState(self.robot_id, self.robot_gripper_index)[1])
+        quat = np.array(p.getLinkState(
+            self.robot_id, self.robot_gripper_index)[1])
         return np.array(self.client.getEulerFromQuaternion(quat), dtype=np.float32)
-    
+
     def get_stick_pos(self):
-        return  np.array(p.getLinkState(self.robot_id, self.robot_stick_index)[0])
-    
+        return np.array(p.getLinkState(self.robot_id, self.robot_stick_index)[0])
+
     def get_stick_ori(self):
-        quat = np.array(p.getLinkState(self.robot_id, self.robot_stick_index)[1])
+        quat = np.array(p.getLinkState(
+            self.robot_id, self.robot_stick_index)[1])
         return np.array(self.client.getEulerFromQuaternion(quat), dtype=np.float32)
-        
+
     def get_joint_angles(self, joint_ids=[0, 1, 2, 3, 4, 5, 6]):
         curr_joint_states = p.getJointStates(self.robot_id, joint_ids)
         curr_joint_angles = []
@@ -217,11 +235,10 @@ class Panda():
             urdf_robot_path = urdf_root + "panda_stick_left_front.urdf"
         elif robot_type is ROBOT_TYPE.STICK_LEFT_BACK:
             urdf_robot_path = urdf_root + "panda_stick_left_back.urdf"
-            
+
         if robot_type is ROBOT_TYPE.STICK_RIGHT_TOP or robot_type is ROBOT_TYPE.STICK_RIGHT_FRONT or robot_type is ROBOT_TYPE.STICK_RIGHT_BACK:
-            self.robot_stick_index = 12
+            self.robot_stick_index = 13
         elif robot_type is ROBOT_TYPE.STICK_LEFT_TOP or robot_type is ROBOT_TYPE.STICK_LEFT_FRONT or robot_type is ROBOT_TYPE.STICK_LEFT_BACK:
-            self.robot_stick_index = 11
+            self.robot_stick_index = 12
 
         return urdf_robot_path
-   
